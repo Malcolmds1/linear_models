@@ -96,10 +96,46 @@ Look at the result again
 
 ```{r}
 broom::tidy(fit)
+broom::glance(fit)
 ```
 
+## Diagnostics
 
+```{r}
+modelr::add_residuals(nyc_airbnb, fit)
+modelr::add_predictions(nyc_airbnb, fit)
+```
 
+```{r}
+nyc_airbnb |> 
+  modelr::add_residuals(fit) |> 
+  ggplot(aes(x = borough, y = resid)) + geom_violin()
+```
+
+```{r}
+nyc_airbnb |> 
+  modelr::add_residuals(fit) |> 
+  ggplot(aes(x = stars, y = resid)) + geom_point()
+```
+
+## Hypothesis tests
+
+This does t-test by default
+
+```{r}
+fit %>% 
+  broom::tidy()
+```
+
+what about the significant of `borough`.
+
+```{r}
+fit_null = lm(price ~ stars + borough, data = nyc_airbnb)
+fit_alt = lm(price ~ stars + borough + room_type, data = nyc_airbnb)
+
+anova(fit_null, fit_alt) |> 
+  broom::tidy()
+```
 
 
 
